@@ -7,7 +7,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
+
+import rasia.hotelalura.entity.Reservation;
+import rasia.hotelalura.util.JPAUtil;
+import rasia.hotelalura.entity.Guest;
+import rasia.hotelalura.dao.GuestDAO;
+
 import javax.swing.JComboBox;
+import javax.persistence.EntityManager;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -19,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.math.BigDecimal;
 import java.text.Format;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
@@ -38,6 +46,11 @@ public class RegistroHospede extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	
+	// reserva a ser gravada junto com o hóspede, recebida através do construtor
+	private Reservation reservation;  
+	private Guest guest = new Guest();
+
 
 	/**
 	 * Launch the application.
@@ -46,7 +59,7 @@ public class RegistroHospede extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHospede frame = new RegistroHospede();
+					RegistroHospede frame = new RegistroHospede(new Reservation());
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,10 +68,28 @@ public class RegistroHospede extends JFrame {
 		});
 	}
 
+
+	/* *************************************** */
+
+	public RegistroHospede(Reservation reservation, Guest guest) {
+		this(reservation);
+		this.guest = guest;
+		
+		txtNome.setText(guest.getName());
+		txtSobrenome.setText(guest.getLastName());
+		txtDataN.setDate(guest.getBirthday());
+		txtNacionalidade.setSelectedItem(guest.getNationality());
+		txtTelefone.setText(guest.getPhone());		
+	}
+
+	/* *************************************** */
+	
+	
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHospede() {
+	public RegistroHospede(Reservation reservation) {
+		this.reservation = reservation;
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHospede.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -175,7 +206,7 @@ public class RegistroHospede extends JFrame {
 		txtDataN.setBounds(560, 278, 285, 36);
 		txtDataN.getCalendarButton().setIcon(new ImageIcon(RegistroHospede.class.getResource("/imagenes/icon-reservas.png")));
 		txtDataN.getCalendarButton().setBackground(SystemColor.textHighlight);
-		txtDataN.setDateFormatString("yyyy-MM-dd");
+		txtDataN.setDateFormatString("dd/MM/yyyy");
 		contentPane.add(txtDataN);
 		
 		txtNacionalidade = new JComboBox();
@@ -241,6 +272,12 @@ public class RegistroHospede extends JFrame {
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		/* *************************************** */
+		txtNreserva.setEditable(false);
+		if(reservation.getId() != null) {
+			txtNreserva.setText(reservation.getId().toString()); //
+		}
+		/* *************************************** */
 		contentPane.add(txtNreserva);
 		
 		JSeparator separator_1_2 = new JSeparator();
@@ -284,6 +321,43 @@ public class RegistroHospede extends JFrame {
 		btnsalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				/* *************************************** */
+				salvar();
+				
+				// chamar Sucesso.java
+				Sucesso sucesso = new Sucesso();
+				sucesso.setVisible(true);
+				/* *************************************** */
+			}
+
+			private void salvar() {
+				
+
+				EntityManager em = JPAUtil.getEntityManager();
+				GuestDAO guestDAO = new GuestDAO(em);
+
+				if(guest.getId() == null) {
+					guest = new Guest(txtNome.getText(), 
+							txtSobrenome.getText(), 
+							txtDataN.getDate(), 
+							(String)txtNacionalidade.getSelectedItem(), 
+							txtTelefone.getText(), 
+							reservation);
+				} else {
+					guest = guestDAO.findById(guest.getId());
+					guest.setName(txtNome.getText());
+					guest.setLastName(txtSobrenome.getText());
+					guest.setBirthday(txtDataN.getDate());
+					guest.setNationality((String)txtNacionalidade.getSelectedItem());
+					guest.setPhone(txtTelefone.getText());
+				}
+				
+				
+				em.getTransaction().begin();
+				guestDAO.save(guest);
+				em.getTransaction().commit();
+				em.close();
+				dispose();
 			}
 		});
 		btnsalvar.setLayout(null);

@@ -4,9 +4,14 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import rasia.hotelalura.dao.LoginDAO;
+import rasia.hotelalura.util.JPAUtil;
+
 import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.persistence.EntityManager;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JSeparator;
@@ -123,7 +128,7 @@ public class Login extends JFrame {
 			}
 		});
 		txtUsuario.setFont(new Font("Roboto", Font.PLAIN, 16));
-		txtUsuario.setText("Digite seu nome de usuario");
+		txtUsuario.setText("");
 		txtUsuario.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		txtUsuario.setForeground(SystemColor.activeCaptionBorder);
 		txtUsuario.setBounds(65, 256, 324, 32);
@@ -147,7 +152,7 @@ public class Login extends JFrame {
 		panel.add(separator_1);
 		
 		txtSenha = new JPasswordField();
-		txtSenha.setText("********");
+		txtSenha.setText("");
 		txtSenha.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -234,19 +239,20 @@ public class Login extends JFrame {
 		header.setLayout(null);
 	}
 	
+	
 	private void Login() {
-		 String Usuario= " "; // admin
-	     String Senha=" "; //admin
-
-	        String senhaa=new String (txtSenha.getPassword());
-
-	        if(txtUsuario.getText().equals(Usuario) && senhaa.equals(Senha)){
-	            MenuUsuario menu = new MenuUsuario();
-	            menu.setVisible(true);
-	            dispose();	 
-	        }else {
-	            JOptionPane.showMessageDialog(this, "Usuario ou Senha não válidos");
-	        }
+		EntityManager em = JPAUtil.getEntityManager();
+		LoginDAO loginDAO = new LoginDAO(em);
+		
+        if(loginDAO.passwordTest(txtUsuario.getText() , new String (txtSenha.getPassword()))){
+        	
+            MenuUsuario menu = new MenuUsuario();
+            menu.setVisible(true);
+            dispose();	 
+        }else {
+            JOptionPane.showMessageDialog(this, "Usuario ou Senha não válidos");
+        }
+		em.close();
 	} 
 	
 	//Código que permite movimentar a janela pela tela seguindo a posição de "x" e "y"

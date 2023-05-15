@@ -53,7 +53,8 @@ public class Sucesso extends JDialog {
 			contentPanel.add(lblNewLabel);
 		}
 		{
-			JLabel lblNewLabel_1 = new JLabel("Registro adicionado com sucesso");
+			// troquei "adicionado" por "gravado" para usar tambem na edição 
+			JLabel lblNewLabel_1 = new JLabel("Registro gravado com sucesso"); 
 			lblNewLabel_1.setForeground(new Color (12, 138, 199));
 			lblNewLabel_1.setFont(new Font("Arial", Font.BOLD, 18));
 			lblNewLabel_1.setBounds(27, 122, 322, 21);
