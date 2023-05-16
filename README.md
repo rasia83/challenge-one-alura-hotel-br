@@ -6,9 +6,16 @@
 </p>
 
 ---
-<br />
-<br />
-<br />
+#### Resumo
+O projeto "Hotel Alura" é um sistema de gerenciamento de reservas e hóspedes para um hotel. 
+As tabelas do banco de dados seguem um padrão com colunas como ID (chave primária gerada pelo banco), active (indicando se o registro foi "apagado"), create_time (data de registro) e update_time (data de alteração) as duas ultimas controladas por triggers do banco.
+
+As senhas são armazenadas em formato hash (SHA-256) e são validadas na tela inicial. 
+No Registro de Reserva, é possível gravar dados como check-in, check-out e valor calculado com base nas diárias, além de informações de pagamento. 
+A tela de hóspedes registra nome, sobrenome, aniversário, nacionalidade, telefone e associação com a reserva.
+
+A busca permite pesquisar em diversos campos das tabelas, com opções de pesquisa por texto, data ou campo numérico. 
+A edição e exclusão só são possíveis se houver um registro selecionado, sendo a exclusão tratada como desativação do registro, marcando-o como "false"(0)
 
 ---
 ## SQL / BD
@@ -69,7 +76,7 @@
 ---
 ## buscar
 [video](https://github.com/rasia83/challenge-one-alura-hotel-br/blob/35c17fbf90ecae4921069cadca59cfdfedd64ae6/midia/buscar.mp4)
-
+#### A busca permite a partir de um unico campo de pesquisa consultar em diversos campos das tabelas, filtrando por texto, data ou campo numérico de id ou valor. 
 
 <p>
      <img width="620" src="https://github.com/rasia83/challenge-one-alura-hotel-br/blob/74d104c21f244475a319a232796a0674cb9e2809/midia/hotelalura_busca_02.jpg">
